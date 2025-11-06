@@ -200,20 +200,7 @@ export default function App(){
               <div className="space-y-6">
                 {/* Symbol Header */}
                 <div className="bg-white rounded-lg shadow-sm border p-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-gray-900">{selected}</h2>
-                    {snapshot.ltp !== null && snapshot.ltp !== undefined ? (
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500 mb-1">LTP</div>
-                        <div className="text-2xl font-bold text-blue-600">{snapshot.ltp.toFixed(2)}</div>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500 mb-1">LTP</div>
-                        <div className="text-2xl font-bold text-gray-400">--</div>
-                      </div>
-                    )}
-                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">{selected}</h2>
                 </div>
 
                 {/* Orderbook and Trades */}
