@@ -69,6 +69,10 @@ class OrderBook:
     def _push_ask(self, order: Order):
         heapq.heappush(self.asks, (order.price if order.price is not None else float('inf'), order.timestamp, order))
 
+    def get_ltp(self) -> float | None:
+        # Return the last traded price (most recent price from last_prices)
+        return self.last_prices[-1] if self.last_prices else None
+
     def snapshot(self, depth=10):
         # Return top `depth` aggregated levels for bids and asks
         bid_levels: Dict[float, float] = {}
@@ -81,7 +85,7 @@ class OrderBook:
             ask_levels[price] = ask_levels.get(price, 0) + o.remaining
         top_bids = sorted(bid_levels.items(), key=lambda x: x[0], reverse=True)[:depth]
         top_asks = sorted(ask_levels.items(), key=lambda x: x[0])[:depth]
-        return {'bids': top_bids, 'asks': top_asks}
+        return {'bids': top_bids, 'asks': top_asks, 'ltp': self.get_ltp()}
 
     async def process_order(self, order: Order):
         # Simple matching: match market/limit against opposite side until filled or no match
@@ -174,12 +178,13 @@ async def place_order(o: OrderIn):
     async with ob.lock:
         trades = await ob.process_order(order)
     # broadcast update
+    snapshot_data = ob.snapshot()
     await broadcast({
         'type': 'order_event',
         'symbol': o.symbol,
         'order': order.dict(),
         'trades': [t.dict() for t in trades],
-        'snapshot': ob.snapshot()
+        'snapshot': snapshot_data
     })
     return {'order_id': order.id, 'filled': len(trades) > 0, 'trades': [t.dict() for t in trades]}
 
